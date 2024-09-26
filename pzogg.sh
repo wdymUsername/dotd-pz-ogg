@@ -140,8 +140,6 @@ add_to_songlist() {
   echo >>songListS12.txt
 }
 
-#generate_mod_script_snip()
-
 upload_files() {
   scriptroot=$(pwd)
   cd "ogg/$dirname"
@@ -163,5 +161,4 @@ convert_files
 fix_filenames
 move_files
 add_to_songlist
-#generate_mod_script_snip
 upload_files
