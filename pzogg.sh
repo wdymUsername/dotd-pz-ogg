@@ -93,7 +93,7 @@ convert_files() {
   for i in raw/*.m4a; do
     ((count++))
     echo "Converting (${count}/${total}): $(basename "$i")"
-    ffmpeg -loglevel error -i "$i" -b:a 48k -acodec libopus "ogg/$(basename "${i%.m4a}").ogg"
+    ffmpeg -loglevel error -i "$i" -b:a 48k -acodec libvorbis "ogg/$(basename "${i%.m4a}").ogg"
   done
 }
 
@@ -133,11 +133,13 @@ move_files() {
 
 add_to_songlist() {
   timestamp=$(date +"%Y-%b-%d")
-  echo "REDEEMED BY $dirname on [$timestamp]" >> songListS12.txt
+  echo "REDEEMED BY $dirname on [$timestamp]" > temp
   for file in "ogg/$dirname"/*.ogg; do
-    echo "$(basename "${file%.ogg}")" >> songListS12.txt
+    echo "$(basename "${file%.ogg}")" >> temp
   done
-  echo >>songListS12.txt
+  echo >> temp
+  cat songListS12.txt >> temp
+  mv temp songListS12.txt
 }
 
 upload_files() {
@@ -147,8 +149,9 @@ upload_files() {
   curl -s -o /dev/null -X POST $webhook -F "file1=@$dirname.zip"
   mv "$dirname.zip" "$scriptroot/archive"
   cd "$scriptroot"
-  curl -s -o /dev/null -X POST $webhook -F "file1=@songListS12.txt"
-  curl -s -o /dev/null -X POST "$webhook" -H "Content-Type:application/json" --data "{\"content\": \"-# More tapes <@745598591757713458>! <a:catdance:1287017623036624947>\"}"
+  #curl -s -o /dev/null -X POST $webhook -F "file1=@songListS12.txt"
+  #curl -s -o /dev/null -X POST "$webhook" -H "Content-Type:application/json" --data "{\"content\": \"-# More tapes <@745598591757713458>! <a:catdance:1287017623036624947>\"}"
+  curl -s -o /dev/null -X POST "$webhook" -H "Content-Type:application/json" --data "{\"content\": \"-# Try this one <@745598591757713458>! <a:catdance:1287017623036624947>\"}"
   rm -r raw && rm -r ogg
   echo "Files sent! Exiting..."
 }
