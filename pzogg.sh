@@ -100,13 +100,15 @@ convert_files() {
 fix_filenames() {
   for file in ogg/*.ogg; do
     filename=$(basename "${file%.ogg}")
-    newfilename=$(echo "$filename" | sed -r '
-      s/\b(Ft\.|Feat\.|Official Music Video|Lyrics|Audio|HD|HQ)\b//gi
-      s/\[.*\]//g
-      s/\(.*\)//g
-      s/^[^a-zA-Z0-9_ -]+//g
-      s/ +$//g
-    ')
+    newfilename=$(echo "$filename" | 
+      iconv -c -t ascii//translit |
+      sed -r '
+        s/\b(Ft\.|Feat\.|Official Music Video|Lyrics|Audio|HD|HQ)\b//gi
+        s/\[.*\]//g
+        s/\(.*\)//g
+        s/^[^a-zA-Z0-9_ -]+//g
+        s/ +$//g
+      ')
     newfilename=${newfilename:-$filename}
     mv "$file" "ogg/${newfilename}.ogg"
   done
@@ -149,9 +151,8 @@ upload_files() {
   curl -s -o /dev/null -X POST $webhook -F "file1=@$dirname.zip"
   mv "$dirname.zip" "$scriptroot/archive"
   cd "$scriptroot"
-  #curl -s -o /dev/null -X POST $webhook -F "file1=@songListS12.txt"
-  #curl -s -o /dev/null -X POST "$webhook" -H "Content-Type:application/json" --data "{\"content\": \"-# More tapes <@745598591757713458>! <a:catdance:1287017623036624947>\"}"
-  curl -s -o /dev/null -X POST "$webhook" -H "Content-Type:application/json" --data "{\"content\": \"-# Try this one <@745598591757713458>! <a:catdance:1287017623036624947>\"}"
+  curl -s -o /dev/null -X POST $webhook -F "file1=@songListS12.txt"
+  curl -s -o /dev/null -X POST "$webhook" -H "Content-Type:application/json" --data "{\"content\": \"-# More tapes <@745598591757713458>! <a:catdance:1287017623036624947>\"}"
   rm -r raw && rm -r ogg
   echo "Files sent! Exiting..."
 }
